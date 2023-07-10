@@ -5,14 +5,19 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
 } from "firebase/auth";
-
 import { AuthContext } from "../components/AuthProvider";
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { Col, Image, Row, Button, Modal, Form } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 
 export default function AuthPage() {
   const loginImage = "https://sig1.co/img-twitter-1";
+  const [failedMessage, setFailedMessage] = useState("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const auth = getAuth();
+  const { currentUser } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   const provider = new GoogleAuthProvider();
   const [modalShow, setModalShow] = useState(null);
@@ -37,60 +42,32 @@ export default function AuthPage() {
 
   const handleClose = () => setModalShow(null);
 
-  const [failedMessage, setFailedMessage] = useState("");
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  // const [authToken, setAuthToken] = useLocalStorage("authToken", "");
-  const auth = getAuth();
-  const { currentUser } = useContext(AuthContext);
-  const navigate = useNavigate();
-
-  if (currentUser) navigate("/profile");
-
-  // useEffect(() => {
-  //   if (authToken) {
-  //     navigate("/profile");
-  //   }
-  // }, [authToken, navigate]);
+  useEffect(() => {
+    if (currentUser) {
+      navigate("/profile");
+    }
+  }, [currentUser, navigate]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
       await signInWithEmailAndPassword(auth, username, password);
     } catch (error) {
-      // setFailedMessage("Please check your login details and try again.");
       console.error(error);
+      if (error.code === "auth/wrong-password") {
+        setFailedMessage(error.message);
+      } else if (error.code === "auth/user-not-found") {
+        setFailedMessage(error.message);
+      } else {
+        setFailedMessage("An error occured please try again.");
+      }
     }
   };
-
-  // const getUsers = async () => {
-  //   try {
-  //     const res = await axios.get(`${url}/users`);
-  //     return res.data.users;
-  //   } catch (error) {
-  //     console.error(error);
-  //   }
-  // };
-
-  // getUsers();
 
   const handleSignUp = async (e) => {
     e.preventDefault();
 
     try {
-      // const registeredUsers = await getUsers();
-
-      // if (registeredUsers.includes(username)) {
-      //   setFailedMessage(
-      //     "Username/Email already already registered to another user."
-      //   );
-      //   return;
-      // }
-
-      // if (password.length <= 2) {
-      //   setFailedMessage("Password too weak");
-      // }
-
       const res = await createUserWithEmailAndPassword(
         auth,
         username,
