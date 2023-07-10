@@ -3,6 +3,8 @@ import {
   getAuth,
   signInWithEmailAndPassword,
   GoogleAuthProvider,
+  FacebookAuthProvider,
+  sendPasswordResetEmail,
   signInWithPopup,
 } from "firebase/auth";
 import { AuthContext } from "../components/AuthProvider";
@@ -19,7 +21,9 @@ export default function AuthPage() {
   const { currentUser } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  const provider = new GoogleAuthProvider();
+  const googleProvider = new GoogleAuthProvider();
+  const facebookProvider = new FacebookAuthProvider();
+
   const [modalShow, setModalShow] = useState(null);
   const handleShowSignUp = () => {
     setModalShow("SignUp");
@@ -34,9 +38,28 @@ export default function AuthPage() {
   const handleGoogleLogin = async (e) => {
     e.preventDefault();
     try {
-      await signInWithPopup(auth, provider);
+      await signInWithPopup(auth, googleProvider);
     } catch (error) {
       console.error(error);
+    }
+  };
+
+  const handleFacebookLogin = async (e) => {
+    e.preventDefault();
+    try {
+      await signInWithPopup(auth, facebookProvider);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handlePasswordReset = async (e) => {
+    e.preventDefault();
+    try {
+      await sendPasswordResetEmail(auth, username);
+      setFailedMessage("Password reset link sent to email");
+    } catch (error) {
+      console.error(error.message);
     }
   };
 
@@ -102,6 +125,13 @@ export default function AuthPage() {
             onClick={handleGoogleLogin}
           >
             <i className='bi bi-google'></i> Sign up with Google
+          </Button>
+          <Button
+            className='rounded-pill'
+            variant='outline-dark'
+            onClick={handleFacebookLogin}
+          >
+            <i className='bi bi-facebook'></i> Sign up with Facebook
           </Button>
           <Button className='rounded-pill' variant='outline-dark'>
             <i className='bi bi-apple'></i> Sign up with Apple
@@ -174,6 +204,13 @@ export default function AuthPage() {
                 type='submit'
               >
                 {modalShow === "SignUp" ? "Sign Up" : "Log In"}
+              </Button>
+              <Button
+                className='rounded-pill'
+                variant='outline-primary'
+                onClick={handlePasswordReset}
+              >
+                Reset Passsword
               </Button>
             </Form>
           </Modal.Body>
