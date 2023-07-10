@@ -1,13 +1,20 @@
-import { useState, useEffect } from "react";
+import {
+  createUserWithEmailAndPassword,
+  getAuth,
+  signInWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithPopup,
+} from "firebase/auth";
+
+import { AuthContext } from "../components/AuthProvider";
+import { useState, useContext } from "react";
 import { Col, Image, Row, Button, Modal, Form } from "react-bootstrap";
-import axios from "axios";
-import useLocalStorage from "use-local-storage";
 import { useNavigate } from "react-router-dom";
 
 export default function AuthPage() {
   const loginImage = "https://sig1.co/img-twitter-1";
-  const url = "https://auth-back-end-suwanki.sigma-school-full-stack.repl.co";
 
+  const provider = new GoogleAuthProvider();
   const [modalShow, setModalShow] = useState(null);
   const handleShowSignUp = () => {
     setModalShow("SignUp");
@@ -19,66 +26,77 @@ export default function AuthPage() {
     setFailedMessage("");
   };
 
+  const handleGoogleLogin = async (e) => {
+    e.preventDefault();
+    try {
+      await signInWithPopup(auth, provider);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const handleClose = () => setModalShow(null);
 
   const [failedMessage, setFailedMessage] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [authToken, setAuthToken] = useLocalStorage("authToken", "");
-
+  // const [authToken, setAuthToken] = useLocalStorage("authToken", "");
+  const auth = getAuth();
+  const { currentUser } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (authToken) {
-      navigate("/profile");
-    }
-  }, [authToken, navigate]);
+  if (currentUser) navigate("/profile");
+
+  // useEffect(() => {
+  //   if (authToken) {
+  //     navigate("/profile");
+  //   }
+  // }, [authToken, navigate]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post(`${url}/login`, { username, password });
-      if (res.data && res.data.auth === true && res.data.token) {
-        setAuthToken(res.data.token);
-        console.log(res.data);
-        setFailedMessage("");
-      }
+      await signInWithEmailAndPassword(auth, username, password);
     } catch (error) {
-      setFailedMessage("Please check your login details and try again.");
+      // setFailedMessage("Please check your login details and try again.");
       console.error(error);
     }
   };
 
-  const getUsers = async () => {
-    try {
-      const res = await axios.get(`${url}/users`);
-      return res.data.users;
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  // const getUsers = async () => {
+  //   try {
+  //     const res = await axios.get(`${url}/users`);
+  //     return res.data.users;
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
+  // };
 
-  getUsers();
+  // getUsers();
 
   const handleSignUp = async (e) => {
     e.preventDefault();
 
     try {
-      const registeredUsers = await getUsers();
+      // const registeredUsers = await getUsers();
 
-      if (registeredUsers.includes(username)) {
-        setFailedMessage(
-          "Username/Email already already registered to another user."
-        );
-        return;
-      }
+      // if (registeredUsers.includes(username)) {
+      //   setFailedMessage(
+      //     "Username/Email already already registered to another user."
+      //   );
+      //   return;
+      // }
 
-      if (password.length <= 2) {
-        setFailedMessage("Password too weak");
-      }
+      // if (password.length <= 2) {
+      //   setFailedMessage("Password too weak");
+      // }
 
-      const res = await axios.post(`${url}/signup`, { username, password });
-      console.log(res.data);
+      const res = await createUserWithEmailAndPassword(
+        auth,
+        username,
+        password
+      );
+      console.log(res.user);
     } catch (error) {
       console.error(error);
     }
@@ -101,7 +119,11 @@ export default function AuthPage() {
           Join Twitter Today.
         </h2>
         <Col sm={5} className='d-grid gap-2'>
-          <Button className='rounded-pill' variant='outline-dark'>
+          <Button
+            className='rounded-pill'
+            variant='outline-dark'
+            onClick={handleGoogleLogin}
+          >
             <i className='bi bi-google'></i> Sign up with Google
           </Button>
           <Button className='rounded-pill' variant='outline-dark'>
