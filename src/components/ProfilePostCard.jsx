@@ -1,44 +1,30 @@
 import { Button, Col, Image, Row } from "react-bootstrap";
-import { useEffect, useState } from "react";
-import jwtDecode from "jwt-decode";
-import axios from "axios";
+import { useState, useContext } from "react";
+import { useDispatch } from "react-redux";
+import { likePost, removeLikeFromPost } from "../features/posts/postsSlice";
+import { AuthContext } from "./AuthProvider";
 
-export default function ProfilePostCard({ content, post_id }) {
+export default function ProfilePostCard({ post }) {
   const pic = "https://shorturl.at/twGJZ";
-  const BASE_URL =
-    "https://twitter-api-suwanki.sigma-school-full-stack.repl.co";
-  const [likes, setLikes] = useState([]);
 
-  // decoding the userId
-  const token = localStorage.getItem("authToken");
-  const decode = jwtDecode(token);
-  const userId = decode.id;
-
-  useEffect(() => {
-    fetch(`${BASE_URL}/likes.post/${post_id}`)
-      .then((response) => response.json())
-      .then((data) => setLikes(data))
-      .catch((error) => console.error("Error: ", error));
-  }, [post_id]);
+  const { content, id: postId } = post;
+  const [likes, setLikes] = useState(post.likes || []);
+  const dispatch = useDispatch();
+  const { currentUser } = useContext(AuthContext);
+  const userId = currentUser.uid;
 
   // handling likes
-  const isLiked = likes.some((like) => like.user_id === userId);
+  const isLiked = likes.includes(userId);
   const handleLike = () => (isLiked ? removeFromLikes() : addToLikes());
 
   const addToLikes = () => {
-    setLikes([...likes, { user_id: userId }]);
-    axios.post(`${BASE_URL}/likes`, {
-      user_id: userId,
-      post_id: post_id,
-    });
+    setLikes([...likes, userId]);
+    dispatch(likePost({ userId, postId }));
   };
 
   const removeFromLikes = () => {
-    const like = likes.find((like) => like.user_id === userId);
-    if (like) {
-      axios.delete(`${BASE_URL}/likes/${likes.likes_id}`);
-      setLikes(likes.filter((like) => like.user_id !== userId));
-    }
+    setLikes(likes.filter((id) => id !== userId));
+    dispatch(removeLikeFromPost({ userId, postId }));
   };
 
   return (

@@ -78,9 +78,9 @@ export default function AuthPage() {
     } catch (error) {
       console.error(error);
       if (error.code === "auth/wrong-password") {
-        setFailedMessage(error.message);
+        setFailedMessage("Incorrect Password, please try again.");
       } else if (error.code === "auth/user-not-found") {
-        setFailedMessage(error.message);
+        setFailedMessage("Incorrect Username, please try again.");
       } else {
         setFailedMessage("An error occured please try again.");
       }

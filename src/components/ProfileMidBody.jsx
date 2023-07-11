@@ -1,97 +1,24 @@
-import {
-  Button,
-  Col,
-  Image,
-  Nav,
-  Row,
-  Modal,
-  Form,
-  Spinner,
-} from "react-bootstrap";
+import { Button, Col, Image, Nav, Row, Spinner } from "react-bootstrap";
 import ProfilePostCard from "./ProfilePostCard";
-import jwt_decode from "jwt-decode";
-import { useEffect, useState } from "react";
+import { useContext, useEffect } from "react";
+import { AuthContext } from "./AuthProvider";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchPostsByUser } from "../features/posts/postsSlice";
 
 export default function ProfileMidBody() {
-  // states
-  // const [userId, setUserId] = useState("");
-
-  // const [posts, setPosts] = useState([]);
   const dispatch = useDispatch();
   const posts = useSelector((state) => state.posts.posts);
   const loading = useSelector((state) => state.posts.loading);
-
-  // const [about, setAbout] = useState("");
-  // const [newContent, setNewContent] = useState("");
-  // const [showModal, setShowModal] = useState(false);
+  const { currentUser } = useContext(AuthContext);
 
   // API URL
   const url =
     "https://pbs.twimg.com/profile_banners/83072625/1602845571/1500x500";
   const pic = "https://shorturl.at/twGJZ";
 
-  // Functions
-  // const handleShow = (e) => {
-  //   e.preventDefault();
-  //   setShowModal(true);
-  //   console.log("clicked");
-  // };
-
-  // get posts
-  // const fetchPosts = (userId) => {
-  //   fetch(
-  //     `https://twitter-api-suwanki.sigma-school-full-stack.repl.co/posts/user/${userId}`
-  //   )
-  //     .then((response) => response.json())
-  //     .then((data) => setPosts(data))
-  //     .catch((error) => console.error("Error:", error));
-  // };
-
-  // get about
-  // const fetchAbout = (userId) => {
-  //   fetch(
-  //     `https://twitter-api-suwanki.sigma-school-full-stack.repl.co/about/user/${userId}`
-  //   )
-  //     .then((response) => response.json())
-  //     .then((data) => setAbout(data))
-  //     .catch((error) => console.error("Error:", error));
-  // };
-
-  // update about
-  // const updateAbout = (userId, newContent) => {
-  //   fetch(
-  //     `https://twitter-api-suwanki.sigma-school-full-stack.repl.co/about/user/${userId}`,
-  //     {
-  //       method: "PUT",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify({ content: newContent }),
-  //     }
-  //   )
-  //     .then((response) => response.json())
-  //     .then((data) => {
-  //       console.log("Content updated successfully:", data);
-  //       // Perform any additional actions after successful update
-  //       console.log(newContent);
-  //       setShowModal(false);
-  //     })
-  //     .catch((error) => console.error("Error:", error));
-  // };
-
   useEffect(() => {
-    const token = localStorage.getItem("authToken");
-    if (token) {
-      const decodedToken = jwt_decode(token);
-      const userId = decodedToken.id;
-      // console.log(userId);
-      // setUserId(userId);
-      dispatch(fetchPostsByUser(userId));
-      // fetchAbout(userId);
-    }
-  }, [dispatch]);
+    dispatch(fetchPostsByUser(currentUser.uid));
+  }, [dispatch, currentUser]);
 
   return (
     <Col sm={6} className='bg-light' style={{ border: "1px solid lightgrey" }}>
@@ -190,7 +117,7 @@ export default function ProfileMidBody() {
         <Spinner animation='border' className='ms-3 mt-3' variant='primary' />
       )}
       {posts.map((post) => (
-        <ProfilePostCard key={post.id} content={post.content} />
+        <ProfilePostCard key={post.id} post={post} />
       ))}
     </Col>
   );
