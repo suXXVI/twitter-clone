@@ -13,7 +13,7 @@ export default function ProfileMidBody() {
 
   // API URL
   const url =
-    "https://pbs.twimg.com/profile_banners/83072625/1602845571/1500x500";
+    "https://wallpapers.com/images/hd/aesthetic-youtube-banner-background-2560-x-1440-zgnao5bu3uyje79v.jpg";
   const pic = "https://shorturl.at/twGJZ";
 
   useEffect(() => {
@@ -22,7 +22,7 @@ export default function ProfileMidBody() {
 
   return (
     <Col sm={6} className='bg-light' style={{ border: "1px solid lightgrey" }}>
-      <Image src={url} fluid />
+      <Image src={url} style={{ height: "200px", width: "100%" }} />
       <br />
       <Image
         src={pic}

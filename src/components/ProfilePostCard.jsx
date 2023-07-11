@@ -12,6 +12,7 @@ export default function ProfilePostCard({ post }) {
   const dispatch = useDispatch();
   const { currentUser } = useContext(AuthContext);
   const userId = currentUser.uid;
+  // const userId = auth.currentUser.uid;
 
   // handling likes
   const isLiked = likes.includes(userId);
@@ -51,9 +52,12 @@ export default function ProfilePostCard({ post }) {
           </Button>
           <Button variant='light' onClick={handleLike}>
             {isLiked ? (
-              <i className='bi bi-heart-fill text-danger'></i>
+              <i
+                className='bi bi-heart-fill text-danger'
+                style={{ marginRight: "10px" }}
+              ></i>
             ) : (
-              <i className='bi bi-heart'></i>
+              <i className='bi bi-heart' style={{ marginRight: "10px" }}></i>
             )}
             {likes.length}
           </Button>
