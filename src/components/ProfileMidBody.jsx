@@ -46,41 +46,6 @@ export default function ProfileMidBody() {
           </Button>
         </Col>
       </Row>
-
-      {/* <Modal show={showModal}>
-        <Modal.Header></Modal.Header>
-        <Modal.Body>
-          <p>Edit About</p>
-          <Form>
-            <Form.Group controlId='editAbout'>
-              <Form.Control
-                placeholder={about}
-                as='textarea'
-                rows={3}
-                value={newContent}
-                onChange={(e) => setNewContent(e.target.value)}
-              />
-            </Form.Group>
-          </Form>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button
-            variant='danger'
-            className='rounded-pill'
-            onClick={() => setShowModal(false)}
-          >
-            Close
-          </Button>
-          <Button
-            variant='primary'
-            className='rounded-pill'
-            onClick={() => updateAbout(userId, newContent)}
-          >
-            Save
-          </Button>
-        </Modal.Footer>
-      </Modal> */}
-
       <p
         className='mt-5'
         style={{ margin: 0, fontWeight: "bold", fontSize: "15px" }}
