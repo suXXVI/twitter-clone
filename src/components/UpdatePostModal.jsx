@@ -1,7 +1,7 @@
 import { useContext, useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
 import { useDispatch } from "react-redux";
-import { updatePost } from "../features/posts/postSlice";
+import { updatePost } from "../features/posts/postsSlice";
 import { AuthContext } from "./AuthProvider";
 
 export default function UpdatePostModal({

@@ -6,6 +6,7 @@ import {
   getDocs,
   setDoc,
   updateDoc,
+  deleteDoc,
 } from "firebase/firestore";
 import { db, storage } from "../../firebase";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
@@ -64,8 +65,9 @@ export const updatePost = createAsyncThunk(
   "posts/updatePost",
   async ({ userId, postId, newPostContent, newFile }) => {
     try {
-      let newImageUrl;
-      if (newFile) {
+      let newImageUrl = "";
+
+      if (newFile !== null) {
         const imageRef = ref(storage, `posts/${newFile.name}`);
         const response = await uploadBytes(imageRef, newFile);
         newImageUrl = await getDownloadURL(response.ref);
@@ -73,21 +75,37 @@ export const updatePost = createAsyncThunk(
 
       const postRef = doc(db, `users/${userId}/posts/${postId}`);
       const postSnap = await getDoc(postRef);
+
       if (postSnap.exists()) {
         const postData = postSnap.data();
         const updatedData = {
-          ...postData,
-          constent: newPostContent || postData.content,
+          content: newPostContent || postData.content,
           imageUrl: newImageUrl || postData.imageUrl,
         };
 
         await updateDoc(postRef, updatedData);
 
-        const updatedPost = { id: postId, ...updatedData };
+        const updatedPost = { id: postId, ...postData, ...updatedData };
         return updatedPost;
       } else {
         throw new Error("Post does not exist");
       }
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+);
+
+export const deletePost = createAsyncThunk(
+  "posts/deletePost",
+  async ({ userId, postId }) => {
+    try {
+      const postRef = doc(db, `users/${userId}/posts/${postId}`);
+
+      await deleteDoc(postRef);
+
+      return postId;
     } catch (error) {
       console.error(error);
       throw error;
@@ -181,6 +199,10 @@ const postsSlice = createSlice({
         if (postIndex !== -1) {
           state.posts[postIndex] = updatedPost;
         }
+      })
+      .addCase(deletePost.fulfilled, (state, action) => {
+        const deletedPostId = action.payload;
+        state.posts = state.posts.filter((post) => post.id !== deletedPostId);
       });
   },
 });

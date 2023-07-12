@@ -1,7 +1,11 @@
 import { Button, Col, Image, Row } from "react-bootstrap";
 import { useState, useContext } from "react";
 import { useDispatch } from "react-redux";
-import { likePost, removeLikeFromPost } from "../features/posts/postsSlice";
+import {
+  likePost,
+  removeLikeFromPost,
+  deletePost,
+} from "../features/posts/postsSlice";
 import { AuthContext } from "./AuthProvider";
 import UpdatePostModal from "./UpdatePostModal";
 
@@ -32,6 +36,10 @@ export default function ProfilePostCard({ post }) {
   const removeFromLikes = () => {
     setLikes(likes.filter((id) => id !== userId));
     dispatch(removeLikeFromPost({ userId, postId }));
+  };
+
+  const handleDelete = () => {
+    dispatch(deletePost({ userId, postId }));
   };
 
   return (
@@ -69,11 +77,20 @@ export default function ProfilePostCard({ post }) {
             {likes.length}
           </Button>
           <Button variant='light'>
-            <i className='bi bi-graph-up'></i>
+            <i
+              className='bi bi-pencil-square'
+              onClick={handleShowUpdateModal}
+            ></i>
           </Button>
           <Button variant='light'>
-            <i className='bi bi-upload'></i>
+            <i className='bi bi-trash' onClick={handleDelete}></i>
           </Button>
+          <UpdatePostModal
+            show={showUpdateModal}
+            handleClose={handleCloseUpdateModal}
+            postId={postId}
+            originalPostContent={content}
+          />
         </div>
       </Col>
     </Row>
