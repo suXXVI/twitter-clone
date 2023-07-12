@@ -1,10 +1,11 @@
 import { Button, Col, Image, Row } from "react-bootstrap";
 import { useState, useContext } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   likePost,
   removeLikeFromPost,
   deletePost,
+  fetchComments,
 } from "../features/posts/postsSlice";
 import { AuthContext } from "./AuthProvider";
 import UpdatePostModal from "./UpdatePostModal";
@@ -18,11 +19,10 @@ export default function ProfilePostCard({ post }) {
 
   const { content, id: postId, imageUrl } = post;
   const [likes, setLikes] = useState(post.likes || []);
+
   const dispatch = useDispatch();
   const { currentUser } = useContext(AuthContext);
   const userId = currentUser.uid;
-  // const userId = auth.currentUser.uid;
-  console.log(`image: ${imageUrl}`);
 
   // handling likes
   const isLiked = likes.includes(userId);
@@ -92,6 +92,9 @@ export default function ProfilePostCard({ post }) {
             originalPostContent={content}
           />
         </div>
+        {/* {comments.map((comment) => (
+          <p key={comment.id}>{comment.content}</p>
+        ))} */}
       </Col>
     </Row>
   );
