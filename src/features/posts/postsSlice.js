@@ -78,10 +78,16 @@ export const updatePost = createAsyncThunk(
 
       if (postSnap.exists()) {
         const postData = postSnap.data();
-        const updatedData = {
+        let updatedData = {
           content: newPostContent || postData.content,
-          imageUrl: newImageUrl || postData.imageUrl,
         };
+
+        if (newFile !== null) {
+          updatedData = {
+            ...updatedData,
+            imageUrl: newImageUrl || postData.imageUrl,
+          };
+        }
 
         await updateDoc(postRef, updatedData);
 
