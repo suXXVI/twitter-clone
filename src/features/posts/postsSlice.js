@@ -59,29 +59,6 @@ export const savePost = createAsyncThunk(
   }
 );
 
-export const saveComment = createAsyncThunk(
-  "posts/saveComment",
-  async ({ userId, postComment }) => {
-    try {
-      const postsRef = collection(db, `users/${userId}/posts`);
-      const newPostRef = doc(postsRef);
-
-      await setDoc(newPostRef, { comments: postComment, likes: [] });
-      const newComment = await getDoc(newPostRef);
-
-      const post = {
-        id: newComment.id,
-        ...newComment.data(),
-      };
-
-      return post;
-    } catch (error) {
-      console.error(error);
-      throw error;
-    }
-  }
-);
-
 export const updatePost = createAsyncThunk(
   "posts/updatePost",
   async ({ userId, postId, newPostContent, newFile }) => {
@@ -133,6 +110,37 @@ export const deletePost = createAsyncThunk(
       await deleteDoc(postRef);
 
       return postId;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+);
+
+export const saveComment = createAsyncThunk(
+  "posts/saveComment",
+  async ({ userId, postComment, postId }) => {
+    try {
+      const postRef = doc(db, `users/${userId}/posts/${postId}`);
+
+      const docSnap = await getDoc(postRef);
+
+      if (docSnap.exists()) {
+        const postData = docSnap.data();
+        const comments = [...postData.comments, postComment];
+
+        await setDoc(postRef, { ...postData, comments });
+
+        const updatedPostSnap = await getDoc(postRef);
+        const updatedPost = {
+          id: updatedPostSnap.id,
+          ...updatedPostSnap.data(),
+        };
+
+        return updatedPost;
+      } else {
+        throw new Error("Post does not exist.");
+      }
     } catch (error) {
       console.error(error);
       throw error;

@@ -4,14 +4,14 @@ import { useDispatch } from "react-redux";
 import { saveComment } from "../features/posts/postsSlice";
 import { AuthContext } from "./AuthProvider";
 
-export default function CommentModal({ show, handleClose }) {
+export default function CommentModal({ show, handleClose, postId }) {
   const [postComment, setPostComment] = useState("");
   const dispatch = useDispatch();
   const { currentUser } = useContext(AuthContext);
   const userId = currentUser.uid;
 
   const handleSave = () => {
-    dispatch(saveComment({ userId, postComment }));
+    dispatch(saveComment({ userId, postComment, postId }));
     handleClose();
     setPostComment("");
   };

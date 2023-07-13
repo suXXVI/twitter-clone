@@ -1,6 +1,6 @@
 import { Button, Col, Image, Row } from "react-bootstrap";
 import { useState, useContext } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import {
   likePost,
   removeLikeFromPost,
@@ -13,10 +13,12 @@ import CommentModal from "./CommentModal";
 export default function ProfilePostCard({ post }) {
   const pic = "https://shorturl.at/twGJZ";
 
+  // Modal to add new post
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const handleShowUpdateModal = () => setShowUpdateModal(true);
   const handleCloseUpdateModal = () => setShowUpdateModal(false);
 
+  // Modal to add new comment
   const [showCommentModal, setShowCommentModal] = useState(false);
   const handleCloseCommentModal = () => setShowCommentModal(false);
   const handleShowCommentModal = () => setShowCommentModal(true);
@@ -99,6 +101,7 @@ export default function ProfilePostCard({ post }) {
         <CommentModal
           show={showCommentModal}
           handleClose={handleCloseCommentModal}
+          postId={postId}
         />
       </Col>
     </Row>
