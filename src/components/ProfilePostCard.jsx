@@ -5,10 +5,10 @@ import {
   likePost,
   removeLikeFromPost,
   deletePost,
-  fetchComments,
 } from "../features/posts/postsSlice";
 import { AuthContext } from "./AuthProvider";
 import UpdatePostModal from "./UpdatePostModal";
+import CommentModal from "./CommentModal";
 
 export default function ProfilePostCard({ post }) {
   const pic = "https://shorturl.at/twGJZ";
@@ -16,6 +16,10 @@ export default function ProfilePostCard({ post }) {
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const handleShowUpdateModal = () => setShowUpdateModal(true);
   const handleCloseUpdateModal = () => setShowUpdateModal(false);
+
+  const [showCommentModal, setShowCommentModal] = useState(false);
+  const handleCloseCommentModal = () => setShowCommentModal(false);
+  const handleShowCommentModal = () => setShowCommentModal(true);
 
   const { content, id: postId, imageUrl } = post;
   const [likes, setLikes] = useState(post.likes || []);
@@ -60,7 +64,7 @@ export default function ProfilePostCard({ post }) {
         <Image src={imageUrl} style={{ width: 150 }} />
         <div className='d-flex justify-content-between'>
           <Button variant='light'>
-            <i className='bi bi-chat'></i>
+            <i className='bi bi-chat' onClick={handleShowCommentModal}></i>
           </Button>
           <Button variant='light'>
             <i className='bi bi-repeat'></i>
@@ -92,9 +96,10 @@ export default function ProfilePostCard({ post }) {
             originalPostContent={content}
           />
         </div>
-        {/* {comments.map((comment) => (
-          <p key={comment.id}>{comment.content}</p>
-        ))} */}
+        <CommentModal
+          show={showCommentModal}
+          handleClose={handleCloseCommentModal}
+        />
       </Col>
     </Row>
   );

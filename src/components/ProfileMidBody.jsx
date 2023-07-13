@@ -3,7 +3,7 @@ import ProfilePostCard from "./ProfilePostCard";
 import { useContext, useEffect } from "react";
 import { AuthContext } from "./AuthProvider";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchPostsByUser } from "../features/posts/postsSlice";
+import { fetchPostsByUser, fetchComments } from "../features/posts/postsSlice";
 
 export default function ProfileMidBody() {
   const dispatch = useDispatch();

@@ -11,8 +11,6 @@ import {
 import { db, storage } from "../../firebase";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
-// const BASE_URL = "https://twitter-api-suwanki.sigma-school-full-stack.repl.co";
-
 // Async thunk for fetching a user's posts
 export const fetchPostsByUser = createAsyncThunk(
   "posts/fetchByUser",
@@ -51,6 +49,29 @@ export const savePost = createAsyncThunk(
       const post = {
         id: newPost.id,
         ...newPost.data(),
+      };
+
+      return post;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+);
+
+export const saveComment = createAsyncThunk(
+  "posts/saveComment",
+  async ({ userId, postComment }) => {
+    try {
+      const postsRef = collection(db, `users/${userId}/posts`);
+      const newPostRef = doc(postsRef);
+
+      await setDoc(newPostRef, { comments: postComment, likes: [] });
+      const newComment = await getDoc(newPostRef);
+
+      const post = {
+        id: newComment.id,
+        ...newComment.data(),
       };
 
       return post;
