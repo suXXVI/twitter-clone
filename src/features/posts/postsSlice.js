@@ -22,7 +22,57 @@ export const fetchPostsByUser = createAsyncThunk(
         id: doc.id,
         ...doc.data(),
       }));
+      // console.log(docs);
       return docs;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+);
+
+export const fetchComments = createAsyncThunk(
+  "posts/fetchComments",
+  async ({ userId, postId }) => {
+    try {
+      const postRef = doc(db, `users/${userId}/posts/${postId}`);
+      const docSnap = await getDoc(postRef);
+
+      if (docSnap.exists()) {
+        const postData = docSnap.data();
+        const comments = postData.comments || [];
+
+        return { postId, comments };
+      } else {
+        throw new Error(`Post does not exist.`);
+      }
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+);
+
+// postSlice.js
+export const removeComment = createAsyncThunk(
+  "posts/removeComment", // Update the action type
+  async ({ userId, postId, commentId }) => {
+    // Add commentId parameter
+    try {
+      const postRef = doc(db, `users/${userId}/posts/${postId}`);
+
+      const docSnap = await getDoc(postRef);
+
+      if (docSnap.exists()) {
+        const postData = docSnap.data();
+        const comments = postData.comments.filter(
+          (comment) => comment.id !== commentId
+        ); // Filter comments by commentId
+
+        await setDoc(postRef, { ...postData, comments });
+      }
+
+      return { userId, postId, commentId }; // Include commentId in the returned payload
     } catch (error) {
       console.error(error);
       throw error;
@@ -43,7 +93,12 @@ export const savePost = createAsyncThunk(
       const postsRef = collection(db, `users/${userId}/posts`);
       const newPostRef = doc(postsRef);
 
-      await setDoc(newPostRef, { content: postContent, likes: [], imageUrl });
+      await setDoc(newPostRef, {
+        content: postContent,
+        likes: [],
+        comments: [],
+        imageUrl,
+      });
       const newPost = await getDoc(newPostRef);
 
       const post = {
@@ -127,7 +182,11 @@ export const saveComment = createAsyncThunk(
 
       if (docSnap.exists()) {
         const postData = docSnap.data();
-        const comments = [...postData.comments, postComment];
+        const comment = {
+          text: postComment,
+          userId: userId, // Include the userId in the comment object
+        };
+        const comments = [...postData.comments, comment];
 
         await setDoc(postRef, { ...postData, comments });
 
@@ -197,13 +256,22 @@ export const removeLikeFromPost = createAsyncThunk(
 // Slice
 const postsSlice = createSlice({
   name: "posts",
-  initialState: { posts: [], loading: true },
+  initialState: {
+    posts: [],
+    comments: [],
+    loading: true,
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchPostsByUser.fulfilled, (state, action) => {
         state.posts = action.payload;
         state.loading = false;
       })
+      .addCase(fetchComments.fulfilled, (state, action) => {
+        const { postId, comments } = action.payload;
+        state.comments[postId] = comments;
+      })
+
       .addCase(savePost.fulfilled, (state, action) => {
         state.posts = [action.payload, ...state.posts];
       })

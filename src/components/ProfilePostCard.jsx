@@ -22,8 +22,9 @@ export default function ProfilePostCard({ post }) {
   const [showCommentModal, setShowCommentModal] = useState(false);
   const handleCloseCommentModal = () => setShowCommentModal(false);
   const handleShowCommentModal = () => setShowCommentModal(true);
+  // const comments = useSelector((state) => state.posts.comments[postId]);
 
-  const { content, id: postId, imageUrl } = post;
+  const { content, id: postId, imageUrl, comments } = post;
   const [likes, setLikes] = useState(post.likes || []);
 
   const dispatch = useDispatch();
@@ -66,7 +67,12 @@ export default function ProfilePostCard({ post }) {
         <Image src={imageUrl} style={{ width: 150 }} />
         <div className='d-flex justify-content-between'>
           <Button variant='light'>
-            <i className='bi bi-chat' onClick={handleShowCommentModal}></i>
+            <i
+              className='bi bi-chat'
+              style={{ marginRight: "10px" }}
+              onClick={handleShowCommentModal}
+            ></i>
+            {comments.length}
           </Button>
           <Button variant='light'>
             <i className='bi bi-repeat'></i>

@@ -1,7 +1,14 @@
 import { useState, useContext } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
+// import { useDispatch, useEffect, useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
-import { saveComment } from "../features/posts/postsSlice";
+import { useSelector } from "react-redux/es/hooks/useSelector";
+import { useEffect } from "react";
+import {
+  saveComment,
+  fetchComments,
+  removeComment,
+} from "../features/posts/postsSlice";
 import { AuthContext } from "./AuthProvider";
 
 export default function CommentModal({ show, handleClose, postId }) {
@@ -10,10 +17,23 @@ export default function CommentModal({ show, handleClose, postId }) {
   const { currentUser } = useContext(AuthContext);
   const userId = currentUser.uid;
 
+  const comments = useSelector((state) => state.posts.comments[postId]);
+
+  useEffect(() => {
+    if (show) {
+      dispatch(fetchComments({ userId, postId }));
+    }
+  }, [dispatch, postId, show, userId]);
+
   const handleSave = () => {
     dispatch(saveComment({ userId, postComment, postId }));
     handleClose();
     setPostComment("");
+  };
+
+  const handleDelete = (commentId) => {
+    dispatch(removeComment({ userId, postId, commentId }));
+    handleClose();
   };
 
   return (
@@ -21,6 +41,15 @@ export default function CommentModal({ show, handleClose, postId }) {
       <Modal show={show} onHide={handleClose}>
         <Modal.Header closeButton></Modal.Header>
         <Modal.Body>
+          {/* Display the comments */}
+          {comments &&
+            comments.map((comment, index) => (
+              <div key={index}>
+                <p>{comment.text}</p>
+                <p>Posted by: {comment.userId}</p>
+                <button onClick={() => handleDelete(comment.id)}>Delete</button>
+              </div>
+            ))}
           <Form>
             <Form.Group controlId='postContent'>
               <Form.Control
